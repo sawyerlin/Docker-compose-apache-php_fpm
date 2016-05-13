@@ -16,6 +16,7 @@ RUN apt-get update \
    
 ADD conf/www.conf /etc/php5/fpm/pool.d/www.conf
 ADD conf/30-custom.ini /usr/local/etc/php/conf.d/30-custom.ini
+ADD conf/php.ini /usr/local/etc/php/php.ini
 
 RUN useradd arnaud -p arnaud
 
@@ -27,14 +28,14 @@ RUN apt-get -y install xfonts-base xfonts-75dpi xfonts-utils fontconfig libxext6
 RUN dpkg -i wkhtmltox-0.12.2.1_linux-jessie-amd64.deb
 RUN rm wkhtmltox-0.12.2.1_linux-jessie-amd64.deb
 
-RUN apt-get -y install locales
+RUN apt-get -y install locales php5-memcached
 # Set the locale
 RUN locale-gen fr_FR.utf8
 ENV LANG fr_FR.utf8
 ENV LANGUAGE fr_FR:fr
 ENV LC_ALL fr_FR.utf8
 
-ENTRYPOINT php-fpm --nodaemonize
+ENTRYPOINT php-fpm --nodaemonize --force-stderr
 
 VOLUME /var/www
 

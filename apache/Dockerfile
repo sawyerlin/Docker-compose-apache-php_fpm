@@ -13,7 +13,6 @@ ENV VIRTUALHOST lab.dev
 
 ADD conf-available /etc/apache2/conf-available
 ADD sites-available /etc/apache2/sites-available
-#ADD mods-available /etc/apache2/mods-available
 
 EXPOSE 80
 

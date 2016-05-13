@@ -1,48 +1,59 @@
-apache:
-    build: apache
-    restart: always
-    volumes:
-        - /var/www:/var/www
-    ports:
-        - 90:80
-    links:
-        - php:php
-    environment:
-        - VIRTUALHOST=puzzle3d.dev
+version: '2'
+services: 
+    database:
+        container_name: monaco-database
+        image: mysql
+        restart: always
+        environment:
+            - MYSQL_ROOT_PASSWORD=123456
+            - MYSQL_USER=dev
+            - MYSQL_PASSWORD=123456
+            - MYSQL_DATABASE=catchup_monaco
 
+    apache:
+        container_name: monaco-web
+        build: apache
+        restart: always
+        volumes:
+            - ./monaco-telecom-replay-bo:/var/www
+        links:
+            - php
+        environment:
+            - VIRTUALHOST=public
 
-nginx:
-    build: nginx
-    restart: always
-    volumes:
-        - /var/www:/var/www
-    ports:
-        - 80:80
-    links:
-        - php:php
+    php:
+        container_name: monaco-cgi
+        build: php-fpm
+        restart: always
+        volumes:
+            - ./monaco-telecom-replay-bo:/var/www
+        ports:
+            - 9000:9000
+        links:
+            - database
+            - cache
 
-php:
-    build: php-fpm
-    restart: always
-    volumes:
-        - /var/www:/var/www
-    ports:
-        - 9000:9000
-    links :
-        - db:db
+    cache:
+        container_name: monaco-memcached
+        image: memcached
 
-db:
-    image: mysql
-    restart: always
-    volumes:
-        - /var/mysql:/var/mysql
-    environment:
-        - MYSQL_ROOT_PASSWORD=root
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: monaco-phpmyadmin
+        restart: always
+        links:
+            - database
+        environment:
+            PMA_HOST: database
+            PMA_USER: root
+            PMA_PASSWORD: 123456
+
     
-dockerUi:
-    image: dockerui/dockerui
-    restart: always
-    volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-        - 5000:9000
+        
+    #dockerUi:
+        #image: dockerui/dockerui
+        #restart: always
+        #volumes:
+            #- /var/run/docker.sock:/var/run/docker.sock
+        #ports:
+            #- 5000:9000
